@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone Management - Climate Controller</title>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dark .dark\:custom-nav {
+            background-color: #1a1a1a;
+        }
+
+        .dark .dark\:bg-gray-nav {
+            background-color: #2d2d2d;
+        }
+
+        .three-state-toggle {
+            position: relative;
+            width: 120px;
+            height: 36px;
+            background-color: #e5e7eb;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .three-state-toggle .slider {
+            position: absolute;
+            height: 28px;
+            width: 32px;
+            left: 4px;
+            top: 4px;
+            background-color: white;
+            border-radius: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .three-state-toggle[data-state="auto"] .slider {
+            left: calc(50% - 16px);
+            background-color: #60a5fa;
+        }
+
+        .three-state-toggle[data-state="on"] .slider {
+            left: calc(100% - 36px);
+            background-color: #10b981;
+        }
+
+        .dark .three-state-toggle {
+            background-color: #374151;
+        }
+
+        .zone-card {
+            transition: all 0.3s ease;
+        }
+
+        .zone-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+
+<body x-data="{
+    darkMode: localStorage.getItem('darkMode') === 'true',
+    sidebarOpen: false,
+    currentTime: '',
+    currentDate: '',
+    showModal: false,
+    showPassword: false,
+    updateDateTime() {
+        const now = new Date();
+        this.currentTime = now.toLocaleTimeString();
+        this.currentDate = now.toLocaleDateString();
+    }
+}" :class="{ 'dark': darkMode }"
+    x-init="
+    updateDateTime();
+    setInterval(() => updateDateTime(), 1000);
+    $watch('darkMode', value => localStorage.setItem('darkMode', value))
+">
+
+    <!-- Navigation & Sidebar components (as provided) -->
+
+    <div class="min-h-screen" :class="darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'">
+        <div class="p-4 pt-20 sm:ml-64">
+            <div class="p-4 rounded-lg">
+                <h1 class="text-2xl font-bold mb-6">Zone Management</h1>
+
+                <!-- Zone Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Poultry Zone Example -->
+                    <div class="zone-card rounded-xl shadow-lg overflow-hidden" :class="darkMode ? 'bg-gray-800' : 'bg-white'">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold">Zone A - Poultry</h3>
+                                    <p class="text-sm opacity-75">Chicken Age: 15 days</p>
+                                </div>
+                                <i class="bi bi-egg-fill text-2xl text-yellow-500"></i>
+                            </div>
+                            
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div class="text-center">
+                                    <i class="bi bi-thermometer-half text-red-500 text-xl"></i>
+                                    <p class="text-sm mt-1">28°C</p>
+                                </div>
+                                <div class="text-center">
+                                    <i class="bi bi-droplet-half text-blue-500 text-xl"></i>
+                                    <p class="text-sm mt-1">65%</p>
+                                </div>
+                                <div class="text-center">
+                                    <i class="bi bi-wind text-green-500 text-xl"></i>
+                                    <p class="text-sm mt-1">Good</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-2">
+                                <button class="p-2 rounded-lg" :class="darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="p-2 rounded-lg" :class="darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'">
+                                    <i class="bi bi-gear"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Controls Section -->
+                        <div class="px-6 pb-6">
+                            <div class="three-state-toggle" data-state="off" @click="
+                                let currentState = $el.getAttribute('data-state');
+                                if (currentState === 'off') $el.setAttribute('data-state', 'auto');
+                                else if (currentState === 'auto') $el.setAttribute('data-state', 'on');
+                                else $el.setAttribute('data-state', 'off');
+                            ">
+                                <div class="slider"></div>
+                                <div class="flex justify-between px-2 py-2 text-xs font-medium">
+                                    <span>Off</span>
+                                    <span>Auto</span>
+                                    <span>On</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Polyhouse Zone Example -->
+                    <div class="zone-card rounded-xl shadow-lg overflow-hidden" :class="darkMode ? 'bg-gray-800' : 'bg-white'">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold">Zone B - Polyhouse</h3>
+                                    <p class="text-sm opacity-75">Tomatoes</p>
+                                </div>
+                                <i class="bi bi-flower1 text-2xl text-green-500"></i>
+                            </div>
+                            
+                            <!-- Similar sensor displays and controls as above -->
+                        </div>
+                    </div>
+
+                    <!-- Add New Zone Card -->
+                    <div class="zone-card rounded-xl shadow-lg overflow-hidden cursor-pointer hover:bg-opacity-90"
+                        :class="darkMode ? 'bg-gray-800' : 'bg-white'"
+                        @click="showModal = true">
+                        <div class="h-full flex flex-col items-center justify-center p-6">
+                            <i class="bi bi-plus-circle text-4xl mb-2" :class="darkMode ? 'text-gray-400' : 'text-gray-500'"></i>
+                            <p class="text-lg font-medium">Add New Zone</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Zone Modal -->
+    <div x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+
+            <div class="inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+                :class="darkMode ? 'bg-gray-800' : 'bg-white'">
+                <!-- Modal content -->
+                <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <!-- Modal content here -->
+                    <button @click="showModal = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-500">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Additional JavaScript for functionality
+    </script>
+
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+
+</html>
